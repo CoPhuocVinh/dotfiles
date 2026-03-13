@@ -1,0 +1,18 @@
+for c in git curl fzf zoxide eza starship fnm tmux dircolors; do
+  command -v "$c" >/dev/null 2>&1 && echo "OK  $c" || echo "MISS $c"
+done
+
+echo "---- plugins (files) ----"
+
+for f in \
+  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$HOME/.zsh/plugins/zsh-completions/src" \
+  "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" \
+  "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" \
+  "$HOME/.zsh/plugins/zsh-autopair/autopair.zsh" \
+  "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh"
+do
+  [ -e "$f" ] && echo "OK  $f" || echo "MISS $f"
+done
+

@@ -1,0 +1,175 @@
+# Load all zsh config parts
+for f in "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh; do
+  [ -r "$f" ] && source "$f"
+done
+
+# fnm
+FNM_PATH="/home/vinhcp/.local/share/fnm"
+if [ -d "$FNM_PATH" ]; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "`fnm env`"
+fi
+# ==================== History ====================
+setopt histignorealldups sharehistory
+HISTSIZE=1000
+SAVEHIST=1000
+HISTFILE=~/.zsh_history
+
+# Use emacs keybindings even if EDITOR is vi
+bindkey -e
+# ==================== Completion: extra completions (MUST be before compinit) ====================
+if [ -d "$HOME/.zsh/plugins/zsh-completions/src" ]; then
+  fpath=("$HOME/.zsh/plugins/zsh-completions/src" $fpath)
+fi
+
+# ==================== Completion (recommended) ====================
+autoload -Uz compinit
+compinit -C
+
+zstyle ':completion:*' auto-description 'specify: %d'
+zstyle ':completion:*' completer _expand _complete _correct _approximate
+zstyle ':completion:*' format 'Completing %d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' menu select=long
+zstyle ':completion:*' list-prompt %SAt %p: Hit TAB for more, or the character to insert%s
+zstyle ':completion:*' select-prompt %SScrolling active: current selection at %p%s
+zstyle ':completion:*' use-compctl false
+zstyle ':completion:*' verbose true
+zstyle ':completion:*' matcher-list '' \
+  'm:{a-z}={A-Z}' \
+  'm:{a-zA-Z}={A-Za-z}' \
+  'r:|[._-]=* r:|=* l:|=*'
+
+if command -v dircolors >/dev/null 2>&1; then
+  eval "$(dircolors -b)"
+  zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+fi
+
+zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
+zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
+# ==================== Plugins ====================
+
+# History Substring Search (↑ ↓ theo chuỗi đang gõ)
+if [ -f "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" ]; then
+  source "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh"
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+fi
+
+# fzf-tab (completion UI with fzf)
+if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/fzf-tab/fzf-tab.plugin.zsh" ]; then
+  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/fzf-tab/fzf-tab.plugin.zsh"
+  zstyle ':fzf-tab:*' switch-group ',' '.'
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -la $realpath'
+fi
+
+# autosuggestions
+if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
+  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+
+# autopair
+if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/zsh-autopair/autopair.zsh" ]; then
+  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/zsh-autopair/autopair.zsh"
+  autopair-init
+fi
+
+# you-should-use (suggest alias usage)
+if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/you-should-use/you-should-use.plugin.zsh" ]; then
+  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/you-should-use/you-should-use.plugin.zsh"
+fi
+# ==================== Aliases ====================
+alias c="clear"
+alias v="~/Downloads/nvim.appimage"
+
+alias cz="cd ~/Workplace/Karhdo/dotfiles/zsh && v .zshrc"
+alias cv="cd ~/Workplace/Karhdo/dotfiles/nvim && v init.lua"
+
+alias zv="cd ~/Workplace/Karhdo/dotfiles/nvim"
+alias zz="cd ~/Workplace/Karhdo/dotfiles/zsh"
+alias zw="cd ~/Workplace"
+alias zy="cd ~/Workplace/YouNet_Media"
+
+alias zbuild='cat "$HOME/.dotfiles/zsh/.zshrc" "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh > "$HOME/.dotfiles/zsh/.zshrc.full"'
+
+alias zreset='source ~/.zshrc'
+
+
+alias anti="antigravity"
+
+# eza aliases (if installed)
+if command -v eza >/dev/null 2>&1; then
+  alias ls="eza -l --icons"
+  alias la="eza -la --icons"
+fi
+
+# alias for xinchao
+alias hi='xinchao'
+alias hello='xinchao'
+
+# alias for gemini
+alias gp='gemini -p'
+alias gpj='gemini -p --output-format json'
+alias gi='gemini'
+
+
+# ==================== Functions ====================
+function ide() {
+  if [ -z "$TMUX" ]; then
+    tmux new-session \; \
+      split-window -v -l 22%\; \
+      split-window -h -l 50%\; \
+      select-pane -t 0
+  else
+    tmux split-window -v -l 22%\; \
+      split-window -h -l 22%\; \
+      select-pane -t 0
+  fi
+}
+
+# Đặt tên mặc định
+MY_NAME="Vinhcp"
+
+# In ra "Xin chào"
+xinchao() {
+  local name="${1:-$MY_NAME}"
+  print -P "%F{green}Xin chào, ngày mới tốt lành ạ $name!%f"
+}
+# ==================== PATH / Env ====================
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
+
+# fnm setup (portable)
+FNM_PATH="$HOME/.local/share/fnm"
+if [ -d "$FNM_PATH" ] && command -v fnm >/dev/null 2>&1; then
+  export PATH="$FNM_PATH:$PATH"
+  eval "$(fnm env --use-on-cd --shell zsh)"
+fi
+
+# zoxide setup
+if command -v zoxide >/dev/null 2>&1; then
+  eval "$(zoxide init zsh)"
+fi
+
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+export PATH="$JAVA_HOME/bin:$PATH"
+
+# Secrets (private)
+if [ -f "$HOME/.dotfiles/zsh/private/secrets.zsh" ]; then
+  source "$HOME/.dotfiles/zsh/private/secrets.zsh"
+fi
+
+# pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+eval "$(pyenv init - zsh)"
+
+# ==================== Starship Prompt ====================
+if command -v starship >/dev/null 2>&1; then
+  eval "$(starship init zsh)"
+fi
+# ==================== Syntax Highlighting (MUST be last) ====================
+if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
+  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
