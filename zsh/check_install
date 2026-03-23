@@ -1,12 +1,12 @@
-for c in git curl fzf zoxide eza starship fnm tmux dircolors; do
+for c in git curl fzf zoxide eza starship fnm tmux nvim pyenv jenv; do
   command -v "$c" >/dev/null 2>&1 && echo "OK  $c" || echo "MISS $c"
 done
 
-echo "---- plugins (files) ----"
+echo "---- plugins ----"
 
 for f in \
-  /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh \
-  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh \
+  "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" \
+  "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
   "$HOME/.zsh/plugins/zsh-completions/src" \
   "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" \
   "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" \
@@ -15,4 +15,3 @@ for f in \
 do
   [ -e "$f" ] && echo "OK  $f" || echo "MISS $f"
 done
-

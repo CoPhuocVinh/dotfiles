@@ -21,7 +21,10 @@ zstyle ':completion:*' matcher-list '' \
   'm:{a-zA-Z}={A-Za-z}' \
   'r:|[._-]=* r:|=* l:|=*'
 
-if command -v dircolors >/dev/null 2>&1; then
+if command -v gdircolors >/dev/null 2>&1; then
+  eval "$(gdircolors -b)"
+  zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+elif command -v dircolors >/dev/null 2>&1; then
   eval "$(dircolors -b)"
   zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 fi
