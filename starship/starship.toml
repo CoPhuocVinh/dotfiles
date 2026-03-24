@@ -1,0 +1,93 @@
+# Format: quyết định prompt hiện gì, theo thứ tự nào
+# Mỗi $variable là 1 module, chỉ hiện khi có context phù hợp
+format = """
+$directory\
+$git_branch\
+$git_status\
+$nodejs\
+$python\
+$java\
+$docker_context\
+$cmd_duration\
+$line_break\
+$character"""
+
+# Giới hạn thời gian chờ lấy thông tin (ms)
+# Repo lớn có thể chậm khi lấy git status
+command_timeout = 1000
+
+# Icon dòng nhập lệnh
+# Xanh khi lệnh trước OK, đỏ khi fail
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
+
+# Đường dẫn thư mục hiện tại
+# truncation_length = 3: chỉ giữ 3 thư mục cuối
+# VD: ~/Workplace/MySelf/dotfiles/zsh/zshrc.d -> …/zsh/zshrc.d
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+
+# Tên branch git hiện tại
+# symbol: icon  (Nerd Font)
+# VD: on  main
+[git_branch]
+format = "on [$symbol$branch]($style) "
+symbol = " "
+
+# Trạng thái file trong git repo
+# modified(!): file đã sửa chưa add
+# untracked(?): file mới chưa được track
+# staged(+): file đã git add
+# deleted(✗): file đã xóa
+# ahead(⇡2): local trước remote 2 commit, cần push
+# behind(⇣3): local sau remote 3 commit, cần pull
+[git_status]
+format = '([$all_status$ahead_behind]($style) )'
+modified = "!"
+untracked = "?"
+staged = "+"
+deleted = "✗"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+
+# Node.js version (qua fnm)
+# Chỉ hiện khi thư mục có package.json hoặc .node-version
+# VD: via  v24.14.0
+[nodejs]
+format = "via [$symbol($version)]($style) "
+symbol = " "
+detect_files = ["package.json", ".node-version"]
+
+# Python version (qua pyenv)
+# Chỉ hiện khi thư mục có .python-version, requirements.txt...
+# VD: via  3.12.0
+[python]
+format = "via [$symbol($version)]($style) "
+symbol = " "
+detect_files = [".python-version", "requirements.txt", "pyproject.toml"]
+
+# Java version (qua jenv)
+# Chỉ hiện khi thư mục có .java-version, pom.xml, build.gradle
+# VD: via  17.0.18
+[java]
+format = "via [$symbol($version)]($style) "
+symbol = " "
+detect_files = [".java-version", "pom.xml", "build.gradle"]
+
+# Docker context
+# Chỉ hiện khi thư mục có Dockerfile hoặc docker-compose.yml
+# VD: via  default
+[docker_context]
+format = "via [$symbol$context]($style) "
+symbol = " "
+only_with_files = true
+detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
+
+# Thời gian chạy lệnh
+# Chỉ hiện khi lệnh chạy > 2 giây (2000ms)
+# VD: npm install 10s -> "took 10s"
+[cmd_duration]
+min_time = 2000
+format = "took [$duration]($style) "

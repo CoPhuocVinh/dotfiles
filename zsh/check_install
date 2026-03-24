@@ -1,9 +1,10 @@
+echo "==== CLI tools ===="
 for c in git curl fzf zoxide eza starship fnm tmux nvim pyenv jenv; do
   command -v "$c" >/dev/null 2>&1 && echo "OK  $c" || echo "MISS $c"
 done
 
-echo "---- plugins ----"
-
+echo ""
+echo "==== Zsh plugins ===="
 for f in \
   "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" \
   "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" \
@@ -14,4 +15,15 @@ for f in \
   "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh"
 do
   [ -e "$f" ] && echo "OK  $f" || echo "MISS $f"
+done
+
+echo ""
+echo "==== Symlinks ===="
+for link in \
+  "$HOME/.zshrc" \
+  "$HOME/.gitconfig" \
+  "$HOME/.config/starship.toml" \
+  "$HOME/.wezterm.lua"
+do
+  [ -L "$link" ] && echo "OK  $link -> $(readlink "$link")" || echo "MISS $link"
 done

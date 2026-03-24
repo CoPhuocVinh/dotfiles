@@ -29,3 +29,8 @@ fi
 if [ -f "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh" ]; then
   source "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh"
 fi
+
+# fzf keybindings & completion
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi

@@ -28,3 +28,6 @@ alias hello='xinchao'
 alias gp='gemini -p'
 alias gpj='gemini -p --output-format json'
 alias gi='gemini'
+
+# git
+alias g="git"

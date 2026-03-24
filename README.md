@@ -9,19 +9,35 @@ dotfiles/
 ├── zsh/
 │   ├── .zshrc                  # Entry point — sources all zshrc.d/*.zsh
 │   ├── .zshrc.full             # Auto-generated merged config (zbuild)
-│   ├── check_install           # Verify all tools & plugins are installed
+│   ├── check_install           # Verify tools, plugins & symlinks
 │   ├── private/
 │   │   └── secrets.zsh         # API keys, tokens (git-ignored)
 │   └── zshrc.d/
 │       ├── 00-history.zsh      # History settings
 │       ├── 10-completion.zsh   # Zsh completion engine + zsh-completions
-│       ├── 20-plugins.zsh      # Plugin loading
+│       ├── 20-plugins.zsh      # Plugin loading + fzf keybindings
 │       ├── 30-aliases.zsh      # Aliases
 │       ├── 40-functions.zsh    # Custom functions (ide, xinchao)
 │       ├── 50-env.zsh          # PATH, version managers, env vars
 │       ├── 90-prompt.zsh       # Starship prompt
 │       └── 99-highlighting.zsh # Syntax highlighting (must be last)
+├── starship/
+│   └── starship.toml           # Starship prompt config
+├── wezterm/
+│   └── wezterm.lua             # WezTerm terminal config
+├── git/
+│   └── .gitconfig              # Git aliases & settings
+├── .gitignore
 └── README.md
+```
+
+### Symlinks
+
+```
+~/.zshrc                  -> ~/.dotfiles/zsh/.zshrc
+~/.gitconfig              -> ~/.dotfiles/git/.gitconfig
+~/.config/starship.toml   -> ~/.dotfiles/starship/starship.toml
+~/.wezterm.lua            -> ~/.dotfiles/wezterm/wezterm.lua
 ```
 
 ---
@@ -62,6 +78,14 @@ ps aux | fzf
 # Dùng với Ctrl+R trong terminal → tìm lệnh cũ đã gõ
 # (fzf tự tích hợp keybinding Ctrl+R khi cài)
 ```
+
+**fzf keybindings (đã tích hợp trong zsh):**
+
+| Phím | Chức năng |
+|------|-----------|
+| `Ctrl+R` | Fuzzy search history (tìm lệnh cũ) |
+| `Ctrl+T` | Fuzzy search file trong thư mục, paste path vào lệnh |
+| `Alt+C` | Fuzzy cd vào thư mục con |
 
 ### eza — Thay thế `ls` hiện đại
 
@@ -215,10 +239,28 @@ Ctrl+Option+Enter   Maximize (full màn hình)
 Ctrl+Option+C       Căn giữa cửa sổ
 ```
 
+### WezTerm — Terminal emulator
+
+Cấu hình tại `~/.wezterm.lua` (symlink từ dotfiles). Theme: One Dark, Font: JetBrains Mono Nerd Font.
+
+**Keybindings:**
+
+| Phím | Chức năng |
+|------|-----------|
+| `Cmd+D` | Chia pane ngang (trái/phải) |
+| `Cmd+Shift+D` | Chia pane dọc (trên/dưới) |
+| `Cmd+W` | Đóng pane hiện tại |
+| `Cmd+Alt+←→↑↓` | Di chuyển giữa pane |
+| `Cmd+=` | Tăng font |
+| `Cmd+-` | Giảm font |
+| `Cmd+0` | Reset font |
+| `Cmd+T` | Tab mới (có sẵn) |
+| `Cmd+[số]` | Chuyển tab (có sẵn) |
+
 ### Fonts
 
 - **Fira Code Nerd Font** — font monospace có ligatures + icon cho terminal/editor
-- **JetBrains Mono Nerd Font** — font monospace sắc nét + icon
+- **JetBrains Mono Nerd Font** — font monospace sắc nét + icon (đang dùng trong WezTerm)
 
 > Nerd Font bổ sung hàng ngàn icon (devicons, powerline...) để hiện trong terminal, eza, starship...
 > Cần chọn font này trong settings của WezTerm / Cursor / VS Code.
@@ -340,6 +382,21 @@ gpj "list 5 JS frameworks"         # Nhận JSON
 gi                                  # Chat interactive
 ```
 
+### Git (zsh alias `g` + git aliases trong .gitconfig)
+
+| Lệnh | Tương đương | Công dụng |
+|-------|-------------|-----------|
+| `g st` | `git status` | Xem trạng thái repo |
+| `g co main` | `git checkout main` | Chuyển branch |
+| `g br` | `git branch` | Liệt kê branch |
+| `g cm "msg"` | `git commit -m "msg"` | Commit với message |
+| `g ca` | `git commit --amend` | Sửa commit cuối |
+| `g df` | `git diff` | Xem thay đổi chưa staged |
+| `g dfs` | `git diff --staged` | Xem thay đổi đã staged |
+| `g lg` | `git log --oneline --graph --decorate --all` | Log dạng graph đẹp |
+| `g last` | `git log -1 HEAD` | Xem commit cuối |
+| `g unstage file` | `git reset HEAD -- file` | Bỏ staged file |
+
 ### Khác
 
 | Alias | Lệnh thực tế | Công dụng |
@@ -392,10 +449,14 @@ xinchao "Bạn"       # → "Xin chào, ngày mới tốt lành ạ Bạn!"
 git clone <repo-url> ~/.dotfiles
 ```
 
-### 3. Symlink .zshrc
+### 3. Symlink config files
 
 ```bash
 ln -sf ~/.dotfiles/zsh/.zshrc ~/.zshrc
+ln -sf ~/.dotfiles/git/.gitconfig ~/.gitconfig
+mkdir -p ~/.config
+ln -sf ~/.dotfiles/starship/starship.toml ~/.config/starship.toml
+ln -sf ~/.dotfiles/wezterm/wezterm.lua ~/.wezterm.lua
 ```
 
 ### 4. Cài CLI tools
@@ -428,16 +489,25 @@ git clone https://github.com/zsh-users/zsh-syntax-highlighting
 ### 7. Đăng ký JDK cho jenv
 
 ```bash
-jenv add /opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home
-jenv add /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home
+mkdir -p ~/.jenv/versions
+jenv add /opt/homebrew/opt/openjdk@11
+jenv add /opt/homebrew/opt/openjdk@17
+jenv enable-plugin export
 jenv global 17
 ```
 
-### 8. Reload và kiểm tra
+### 8. Cài Node.js (qua fnm)
+
+```bash
+fnm install --lts
+fnm default lts-latest
+```
+
+### 9. Reload và kiểm tra
 
 ```bash
 source ~/.zshrc
-bash ~/.dotfiles/zsh/check_install
+zsh ~/.dotfiles/zsh/check_install
 ```
 
 > Kết quả mong đợi: tất cả dòng đều hiện `OK`.

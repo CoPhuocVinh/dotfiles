@@ -1,0 +1,16 @@
+[user]
+	name = vinhcp
+	email = cophuocvinh@gmail.com
+[init]
+	defaultBranch = main
+[alias]
+	co = checkout
+	br = branch
+	st = status
+	cm = commit -m
+	ca = commit --amend
+	unstage = reset HEAD --
+	last = log -1 HEAD
+	lg = log --oneline --graph --decorate --all
+	df = diff
+	dfs = diff --staged
