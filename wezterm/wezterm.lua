@@ -58,6 +58,15 @@ config.keys = {
   { key = "UpArrow",    mods = "CMD|ALT", action = wezterm.action.ActivatePaneDirection("Up") },
   { key = "DownArrow",  mods = "CMD|ALT", action = wezterm.action.ActivatePaneDirection("Down") },
 
+  -- Zoom pane: Cmd+Z phóng to/thu nhỏ pane (giống tmux Ctrl+B z)
+  { key = "z", mods = "CMD", action = wezterm.action.TogglePaneZoomState },
+
+  -- Clear scrollback + màn hình: Cmd+K
+  { key = "k", mods = "CMD", action = wezterm.action.Multiple({
+    wezterm.action.ClearScrollback("ScrollbackAndViewport"),
+    wezterm.action.SendKey({ key = "l", mods = "CTRL" }),
+  })},
+
   -- Zoom font: Cmd+= tăng, Cmd+- giảm, Cmd+0 reset
   { key = "=", mods = "CMD", action = wezterm.action.IncreaseFontSize },
   { key = "-", mods = "CMD", action = wezterm.action.DecreaseFontSize },

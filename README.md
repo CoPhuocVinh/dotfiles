@@ -252,6 +252,8 @@ Cấu hình tại `~/.wezterm.lua` (symlink từ dotfiles). Theme: One Dark, Fon
 | `Cmd+Shift+D` | Chia pane dọc (trên/dưới) |
 | `Cmd+W` | Đóng pane hiện tại |
 | `Cmd+Alt+←→↑↓` | Di chuyển giữa pane |
+| `Cmd+Z` | Zoom pane (phóng to/thu nhỏ) |
+| `Cmd+K` | Clear màn hình + scrollback |
 | `Cmd+=` | Tăng font |
 | `Cmd+-` | Giảm font |
 | `Cmd+0` | Reset font |
@@ -486,6 +488,8 @@ gi                                  # Chat interactive
 | `g dfs` | `git diff --staged` | Xem thay đổi đã staged |
 | `g lg` | `git log --oneline --graph --decorate --all` | Log dạng graph đẹp |
 | `g last` | `git log -1 HEAD` | Xem commit cuối |
+| `g sw main` | `git switch main` | Chuyển branch (modern) |
+| `g swc feat` | `git switch -c feat` | Tạo + chuyển branch mới |
 | `g unstage file` | `git reset HEAD -- file` | Bỏ staged file |
 
 ### Khác

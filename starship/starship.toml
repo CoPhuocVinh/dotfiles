@@ -85,6 +85,13 @@ symbol = " "
 only_with_files = true
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
 
+# Git commit hash (chỉ hiện khi ở detached HEAD)
+# VD: checkout commit cụ thể -> hiện "(abc1234)"
+[git_commit]
+only_detached = true
+tag_disabled = false
+format = '[\($hash$tag\)]($style) '
+
 # Thời gian chạy lệnh
 # Chỉ hiện khi lệnh chạy > 2 giây (2000ms)
 # VD: npm install 10s -> "took 10s"

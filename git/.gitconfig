@@ -3,12 +3,27 @@
 	email = cophuocvinh@gmail.com
 [init]
 	defaultBranch = main
+[core]
+	editor = nvim
+	autocrlf = input
+[pull]
+	rebase = true
+[push]
+	autoSetupRemote = true
+[merge]
+	conflictstyle = diff3
+[diff]
+	colorMoved = default
+[rerere]
+	enabled = true
 [alias]
 	co = checkout
 	br = branch
 	st = status
 	cm = commit -m
 	ca = commit --amend
+	sw = switch
+	swc = switch -c
 	unstage = reset HEAD --
 	last = log -1 HEAD
 	lg = log --oneline --graph --decorate --all
