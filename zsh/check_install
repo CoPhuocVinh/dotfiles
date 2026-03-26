@@ -1,5 +1,5 @@
 echo "==== CLI tools ===="
-for c in git curl fzf zoxide eza starship fnm tmux nvim pyenv jenv; do
+for c in git curl fzf zoxide eza starship fnm tmux nvim pyenv jenv cargo gemini; do
   command -v "$c" >/dev/null 2>&1 && echo "OK  $c" || echo "MISS $c"
 done
 

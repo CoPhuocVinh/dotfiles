@@ -11,13 +11,3 @@ setopt INC_APPEND_HISTORY     # ghi history ngay lập tức, không đợi tho�
 setopt HIST_EXPIRE_DUPS_FIRST # khi history đầy, xóa lệnh trùng trước
 setopt HIST_FIND_NO_DUPS      # tìm history không hiện kết quả trùng
 setopt HIST_REDUCE_BLANKS     # xóa khoảng trắng thừa trong lệnh
-
-# Emacs keybindings
-bindkey -e
-
-# Home / End / Delete (fix cho một số terminal)
-bindkey '^[[H'  beginning-of-line      # Home
-bindkey '^[[F'  end-of-line            # End
-bindkey '^[[3~' delete-char            # Delete
-bindkey '^[[1;3C' forward-word         # Alt+Right: nhảy sang từ tiếp
-bindkey '^[[1;3D' backward-word        # Alt+Left: nhảy về từ trước

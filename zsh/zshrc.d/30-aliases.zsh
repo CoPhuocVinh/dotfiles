@@ -18,7 +18,7 @@ alias zv="cd ~/.dotfiles/nvim"
 alias zz="cd ~/.dotfiles/zsh"
 alias zw="cd ~/Workplace"
 
-alias zbuild='cat "$HOME/.dotfiles/zsh/.zshrc" "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh > "$HOME/.dotfiles/zsh/.zshrc.full"'
+alias zbuild='cat "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh > "$HOME/.dotfiles/zsh/.zshrc.full"'
 alias zreset='source ~/.zshrc'
 
 alias anti="antigravity"

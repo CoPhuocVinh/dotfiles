@@ -1,25 +1,61 @@
-# Load all zsh config parts
-for f in "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh; do
-  [ -r "$f" ] && source "$f"
-done
-
-# fnm
-FNM_PATH="/home/vinhcp/.local/share/fnm"
-if [ -d "$FNM_PATH" ]; then
-  export PATH="$FNM_PATH:$PATH"
-  eval "`fnm env`"
-fi
 # ==================== History ====================
-setopt histignorealldups sharehistory
-HISTSIZE=1000
-SAVEHIST=1000
+HISTSIZE=10000
+SAVEHIST=10000
 HISTFILE=~/.zsh_history
 
-# Use emacs keybindings even if EDITOR is vi
+setopt SHARE_HISTORY          # chia sẻ history giữa các session
+setopt HIST_IGNORE_ALL_DUPS   # xóa lệnh trùng cũ khi thêm mới
+setopt HIST_IGNORE_SPACE      # lệnh bắt đầu bằng space = không lưu (gõ mật khẩu)
+setopt HIST_VERIFY            # !! hiện lệnh trước để xem, không chạy ngay
+setopt INC_APPEND_HISTORY     # ghi history ngay lập tức, không đợi thoát shell
+setopt HIST_EXPIRE_DUPS_FIRST # khi history đầy, xóa lệnh trùng trước
+setopt HIST_FIND_NO_DUPS      # tìm history không hiện kết quả trùng
+setopt HIST_REDUCE_BLANKS     # xóa khoảng trắng thừa trong lệnh
+# ==================== Keybindings ====================
+
+# Emacs keybindings (Ctrl+A đầu dòng, Ctrl+E cuối dòng, etc.)
 bindkey -e
+
+# Home / End / Delete (fix cho một số terminal)
+bindkey '^[[H'  beginning-of-line      # Home
+bindkey '^[[F'  end-of-line            # End
+bindkey '^[[3~' delete-char            # Delete
+
+# Alt+Left/Right: nhảy giữa các từ
+bindkey '^[[1;3C' forward-word         # Alt+Right
+bindkey '^[[1;3D' backward-word        # Alt+Left
+# ==================== Zsh Options ====================
+
+# Gõ tên thư mục không cần cd
+# VD: gõ "dotfiles" thay vì "cd dotfiles"
+setopt AUTO_CD
+
+# cd tự push vào stack, dùng "cd -" hoặc "cd -2" để quay lại
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS    # không push thư mục trùng
+setopt PUSHD_SILENT          # không in stack khi pushd
+
+# Sửa lỗi gõ sai tên lệnh
+# VD: gõ "gti" -> "zsh: correct 'gti' to 'git'? [nyae]"
+setopt CORRECT
+
+# Globbing mạnh hơn
+setopt EXTENDED_GLOB         # pattern nâng cao: ^, ~, # trong glob
+setopt GLOB_DOTS             # include dotfiles khi glob
+
+# Không beep
+setopt NO_BEEP
+
+# Cho phép comment trong interactive shell
+setopt INTERACTIVE_COMMENTS  # gõ "ls # test" không bị lỗi
 # ==================== Completion: extra completions (MUST be before compinit) ====================
 if [ -d "$HOME/.zsh/plugins/zsh-completions/src" ]; then
   fpath=("$HOME/.zsh/plugins/zsh-completions/src" $fpath)
+fi
+
+# Homebrew completions (docker, git, brew, etc.)
+if type brew &>/dev/null; then
+  fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
 fi
 
 # ==================== Completion (recommended) ====================
@@ -40,7 +76,10 @@ zstyle ':completion:*' matcher-list '' \
   'm:{a-zA-Z}={A-Za-z}' \
   'r:|[._-]=* r:|=* l:|=*'
 
-if command -v dircolors >/dev/null 2>&1; then
+if command -v gdircolors >/dev/null 2>&1; then
+  eval "$(gdircolors -b)"
+  zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+elif command -v dircolors >/dev/null 2>&1; then
   eval "$(dircolors -b)"
   zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
 fi
@@ -49,71 +88,100 @@ zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 zstyle ':completion:*:kill:*' command 'ps -u $USER -o pid,%cpu,tty,cputime,cmd'
 # ==================== Plugins ====================
 
-# History Substring Search (↑ ↓ theo chuỗi đang gõ)
+# History Substring Search
 if [ -f "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" ]; then
   source "$HOME/.zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh"
   bindkey '^[[A' history-substring-search-up
   bindkey '^[[B' history-substring-search-down
 fi
 
-# fzf-tab (completion UI with fzf)
-if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/fzf-tab/fzf-tab.plugin.zsh" ]; then
-  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/fzf-tab/fzf-tab.plugin.zsh"
+# fzf-tab
+if [ -f "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh" ]; then
+  source "$HOME/.zsh/plugins/fzf-tab/fzf-tab.plugin.zsh"
   zstyle ':fzf-tab:*' switch-group ',' '.'
-  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls -la $realpath'
+  zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -la --icons --color=always $realpath 2>/dev/null || ls -la $realpath'
+  zstyle ':fzf-tab:complete:*:*' fzf-preview \
+    'if [ -d $realpath ]; then eza -la --icons --color=always $realpath 2>/dev/null || ls -la $realpath; elif [ -f $realpath ]; then head -50 $realpath 2>/dev/null; fi'
 fi
 
 # autosuggestions
-if [ -f /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
-  source /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+if [ -f "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]; then
+  source "$HOME/.zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
 fi
 
 # autopair
-if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/zsh-autopair/autopair.zsh" ]; then
-  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/zsh-autopair/autopair.zsh"
+if [ -f "$HOME/.zsh/plugins/zsh-autopair/autopair.zsh" ]; then
+  source "$HOME/.zsh/plugins/zsh-autopair/autopair.zsh"
   autopair-init
 fi
 
-# you-should-use (suggest alias usage)
-if [ -f "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/you-should-use/you-should-use.plugin.zsh" ]; then
-  source "${ZSH_CUSTOM:-$HOME/.zsh}/plugins/you-should-use/you-should-use.plugin.zsh"
+# you-should-use
+if [ -f "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh" ]; then
+  source "$HOME/.zsh/plugins/you-should-use/you-should-use.plugin.zsh"
 fi
-# ==================== Aliases ====================
+
+# fzf keybindings & completion
+if command -v fzf >/dev/null 2>&1; then
+  source <(fzf --zsh)
+fi
+
+# Colored man pages
+export LESS_TERMCAP_mb=$'\e[1;31m'     # begin bold
+export LESS_TERMCAP_md=$'\e[1;36m'     # begin cyan bold (headings)
+export LESS_TERMCAP_me=$'\e[0m'        # end mode
+export LESS_TERMCAP_so=$'\e[1;44;33m'  # begin status line (search highlight)
+export LESS_TERMCAP_se=$'\e[0m'        # end status line
+export LESS_TERMCAP_us=$'\e[1;32m'     # begin underline (green)
+export LESS_TERMCAP_ue=$'\e[0m'        # end underline# ==================== Aliases ====================
 alias c="clear"
-alias v="~/Downloads/nvim.appimage"
+alias v="nvim"
 
-alias cz="cd ~/Workplace/Karhdo/dotfiles/zsh && v .zshrc"
-alias cv="cd ~/Workplace/Karhdo/dotfiles/nvim && v init.lua"
+# Directory navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
 
-alias zv="cd ~/Workplace/Karhdo/dotfiles/nvim"
-alias zz="cd ~/Workplace/Karhdo/dotfiles/zsh"
+# Safety: hỏi trước khi ghi đè
+alias cp="cp -i"
+alias mv="mv -i"
+
+alias cz="cd ~/.dotfiles/zsh && v .zshrc"
+alias cv="cd ~/.dotfiles/nvim && v init.lua"
+
+alias zv="cd ~/.dotfiles/nvim"
+alias zz="cd ~/.dotfiles/zsh"
 alias zw="cd ~/Workplace"
-alias zy="cd ~/Workplace/YouNet_Media"
 
-alias zbuild='cat "$HOME/.dotfiles/zsh/.zshrc" "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh > "$HOME/.dotfiles/zsh/.zshrc.full"'
-
+alias zbuild='cat "$HOME/.dotfiles/zsh/zshrc.d/"*.zsh > "$HOME/.dotfiles/zsh/.zshrc.full"'
 alias zreset='source ~/.zshrc'
-
 
 alias anti="antigravity"
 
-# eza aliases (if installed)
+# eza
 if command -v eza >/dev/null 2>&1; then
   alias ls="eza -l --icons"
   alias la="eza -la --icons"
+  alias lt="eza --tree --icons -L 2"
+  alias lta="eza --tree --icons -L 2 -a"
 fi
 
-# alias for xinchao
+# xinchao
 alias hi='xinchao'
 alias hello='xinchao'
 
-# alias for gemini
+# gemini
 alias gp='gemini -p'
 alias gpj='gemini -p --output-format json'
 alias gi='gemini'
 
+# git
+alias g="git"# ==================== Functions ====================
 
-# ==================== Functions ====================
+# Tạo thư mục và cd vào luôn (oh-my-zsh gọi là "take")
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
 function ide() {
   if [ -z "$TMUX" ]; then
     tmux new-session \; \
@@ -122,9 +190,27 @@ function ide() {
       select-pane -t 0
   else
     tmux split-window -v -l 22%\; \
-      split-window -h -l 22%\; \
+      split-window -h -l 50%\; \
       select-pane -t 0
   fi
+}
+
+# Double Esc = thêm sudo vào đầu lệnh (hoặc lệnh trước)
+sudo-command-line() {
+  [[ -z $BUFFER ]] && zle up-history
+  if [[ $BUFFER == sudo\ * ]]; then
+    LBUFFER="${LBUFFER#sudo }"
+  else
+    LBUFFER="sudo $LBUFFER"
+  fi
+}
+zle -N sudo-command-line
+bindkey '\e\e' sudo-command-line
+
+# Copy đường dẫn thư mục hiện tại vào clipboard
+copypath() {
+  pwd | tr -d '\n' | pbcopy
+  echo "Copied: $(pwd)"
 }
 
 # Đặt tên mặc định
@@ -136,40 +222,44 @@ xinchao() {
   print -P "%F{green}Xin chào, ngày mới tốt lành ạ $name!%f"
 }
 # ==================== PATH / Env ====================
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"
 
-# fnm setup (portable)
-FNM_PATH="$HOME/.local/share/fnm"
-if [ -d "$FNM_PATH" ] && command -v fnm >/dev/null 2>&1; then
-  export PATH="$FNM_PATH:$PATH"
+# fnm (brew handles PATH, just need eval)
+if command -v fnm >/dev/null 2>&1; then
   eval "$(fnm env --use-on-cd --shell zsh)"
 fi
 
-# zoxide setup
+# zoxide
 if command -v zoxide >/dev/null 2>&1; then
   eval "$(zoxide init zsh)"
 fi
 
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export PATH="$JAVA_HOME/bin:$PATH"
+# Java (managed by jenv)
+if command -v jenv >/dev/null 2>&1; then
+  export PATH="$HOME/.jenv/bin:$PATH"
+  eval "$(jenv init -)"
+fi
 
-# Secrets (private)
+# Secrets
 if [ -f "$HOME/.dotfiles/zsh/private/secrets.zsh" ]; then
   source "$HOME/.dotfiles/zsh/private/secrets.zsh"
 fi
 
 # pyenv
-export PYENV_ROOT="$HOME/.pyenv"
-export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - zsh)"
-
-# ==================== Starship Prompt ====================
+if command -v pyenv >/dev/null 2>&1; then
+  export PYENV_ROOT="$HOME/.pyenv"
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  eval "$(pyenv init - zsh)"
+fi# ==================== Starship Prompt ====================
 if command -v starship >/dev/null 2>&1; then
   eval "$(starship init zsh)"
 fi
 # ==================== Syntax Highlighting (MUST be last) ====================
-if [ -f /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
-  source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+if [ -f "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]; then
+  source "$HOME/.zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi

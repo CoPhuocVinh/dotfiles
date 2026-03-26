@@ -13,7 +13,7 @@ function ide() {
       select-pane -t 0
   else
     tmux split-window -v -l 22%\; \
-      split-window -h -l 22%\; \
+      split-window -h -l 50%\; \
       select-pane -t 0
   fi
 }

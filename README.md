@@ -14,6 +14,7 @@ dotfiles/
 │   │   └── secrets.zsh         # API keys, tokens (git-ignored)
 │   └── zshrc.d/
 │       ├── 00-history.zsh      # History settings (10k lines, dedup, ignore space)
+│       ├── 01-keybindings.zsh  # Key bindings (Home, End, Alt+arrows)
 │       ├── 05-options.zsh      # Zsh options (auto_cd, correct, no_beep...)
 │       ├── 10-completion.zsh   # Zsh completion engine + zsh-completions
 │       ├── 20-plugins.zsh      # Plugin loading + fzf keybindings

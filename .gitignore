@@ -1,2 +1,3 @@
-zsh/private/secrets.zsh
-zsh/private/.npmrc
+zsh/private/*
+!zsh/private/.npmrc.example
+zsh/.zshrc.full
