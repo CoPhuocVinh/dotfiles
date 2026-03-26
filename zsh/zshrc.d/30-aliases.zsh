@@ -2,6 +2,15 @@
 alias c="clear"
 alias v="nvim"
 
+# Directory navigation
+alias ..="cd .."
+alias ...="cd ../.."
+alias ....="cd ../../.."
+
+# Safety: hỏi trước khi ghi đè
+alias cp="cp -i"
+alias mv="mv -i"
+
 alias cz="cd ~/.dotfiles/zsh && v .zshrc"
 alias cv="cd ~/.dotfiles/nvim && v init.lua"
 
@@ -18,6 +27,8 @@ alias anti="antigravity"
 if command -v eza >/dev/null 2>&1; then
   alias ls="eza -l --icons"
   alias la="eza -la --icons"
+  alias lt="eza --tree --icons -L 2"
+  alias lta="eza --tree --icons -L 2 -a"
 fi
 
 # xinchao

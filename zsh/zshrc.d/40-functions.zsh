@@ -1,4 +1,10 @@
 # ==================== Functions ====================
+
+# Tạo thư mục và cd vào luôn (oh-my-zsh gọi là "take")
+mkcd() {
+  mkdir -p "$1" && cd "$1"
+}
+
 function ide() {
   if [ -z "$TMUX" ]; then
     tmux new-session \; \
@@ -10,6 +16,24 @@ function ide() {
       split-window -h -l 22%\; \
       select-pane -t 0
   fi
+}
+
+# Double Esc = thêm sudo vào đầu lệnh (hoặc lệnh trước)
+sudo-command-line() {
+  [[ -z $BUFFER ]] && zle up-history
+  if [[ $BUFFER == sudo\ * ]]; then
+    LBUFFER="${LBUFFER#sudo }"
+  else
+    LBUFFER="sudo $LBUFFER"
+  fi
+}
+zle -N sudo-command-line
+bindkey '\e\e' sudo-command-line
+
+# Copy đường dẫn thư mục hiện tại vào clipboard
+copypath() {
+  pwd | tr -d '\n' | pbcopy
+  echo "Copied: $(pwd)"
 }
 
 # Đặt tên mặc định

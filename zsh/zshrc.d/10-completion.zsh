@@ -3,6 +3,11 @@ if [ -d "$HOME/.zsh/plugins/zsh-completions/src" ]; then
   fpath=("$HOME/.zsh/plugins/zsh-completions/src" $fpath)
 fi
 
+# Homebrew completions (docker, git, brew, etc.)
+if type brew &>/dev/null; then
+  fpath=($(brew --prefix)/share/zsh/site-functions $fpath)
+fi
+
 # ==================== Completion (recommended) ====================
 autoload -Uz compinit
 compinit -C

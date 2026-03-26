@@ -1,4 +1,7 @@
 # ==================== PATH / Env ====================
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/share/nvim/mason/bin:$PATH"

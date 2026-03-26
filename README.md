@@ -13,7 +13,8 @@ dotfiles/
 │   ├── private/
 │   │   └── secrets.zsh         # API keys, tokens (git-ignored)
 │   └── zshrc.d/
-│       ├── 00-history.zsh      # History settings
+│       ├── 00-history.zsh      # History settings (10k lines, dedup, ignore space)
+│       ├── 05-options.zsh      # Zsh options (auto_cd, correct, no_beep...)
 │       ├── 10-completion.zsh   # Zsh completion engine + zsh-completions
 │       ├── 20-plugins.zsh      # Plugin loading + fzf keybindings
 │       ├── 30-aliases.zsh      # Aliases
@@ -267,6 +268,89 @@ Cấu hình tại `~/.wezterm.lua` (symlink từ dotfiles). Theme: One Dark, Fon
 
 ---
 
+## Zsh Options
+
+Các tùy chọn shell được bật trong `05-options.zsh` và `00-history.zsh`, tương đương tính năng Oh My Zsh.
+
+### AUTO_CD — Gõ tên thư mục = tự cd
+
+Không cần gõ `cd` nữa, gõ thẳng tên thư mục:
+
+```bash
+~/Workplace           # = cd ~/Workplace
+..                    # = cd ..
+dotfiles              # = cd dotfiles
+```
+
+### AUTO_PUSHD — Nhớ lịch sử cd
+
+Mỗi lần cd, thư mục cũ được lưu vào stack. Dùng `cd -` để quay lại:
+
+```bash
+cd ~/Workplace          # stack: [~]
+cd MySelf               # stack: [~/Workplace, ~]
+cd dotfiles             # stack: [~/Workplace/MySelf, ~/Workplace, ~]
+
+cd -                    # quay lại ~/Workplace/MySelf
+cd -2                   # quay lại ~/Workplace
+cd -3                   # quay lại ~
+dirs -v                 # xem toàn bộ stack
+```
+
+### CORRECT — Sửa lỗi gõ sai lệnh
+
+```bash
+gti status
+# zsh: correct 'gti' to 'git'? [nyae]
+# n = no (bỏ qua), y = yes (chấp nhận), a = abort, e = edit
+
+claer
+# zsh: correct 'claer' to 'clear'? [nyae]
+```
+
+### EXTENDED_GLOB — Pattern nâng cao
+
+```bash
+ls ^*.log               # tất cả file KHÔNG phải .log (^ = NOT)
+ls **/*.ts              # tất cả file .ts trong mọi thư mục con (recursive)
+ls (#i)readme*          # match README.md, readme.md, Readme.MD... (case insensitive)
+```
+
+### GLOB_DOTS — Glob bao gồm dotfiles
+
+```bash
+# Không có GLOB_DOTS: ls *.zsh chỉ thấy visible.zsh
+# Có GLOB_DOTS:       ls *.zsh thấy cả .hidden.zsh
+```
+
+### NO_BEEP — Tắt tiếng beep
+
+Không kêu beep khi Tab không match hoặc scroll hết history.
+
+### INTERACTIVE_COMMENTS — Cho phép comment trong terminal
+
+```bash
+ls # xem file            # chạy bình thường, bỏ qua phần sau #
+# Hữu ích khi copy paste lệnh có comment từ tài liệu
+```
+
+### HIST_IGNORE_SPACE — Lệnh bắt đầu bằng space = không lưu history
+
+```bash
+ export SECRET_KEY=abc123    # có space ở đầu -> KHÔNG lưu vào history
+export PUBLIC_KEY=xyz        # không có space -> lưu bình thường
+```
+
+### HIST_VERIFY — `!!` hiện lệnh trước, không chạy ngay
+
+```bash
+apt install nginx            # chạy, bị permission denied
+sudo !!                      # KHÔNG chạy ngay, hiện "sudo apt install nginx" để xem trước
+# Nhấn Enter lần nữa để chạy. An toàn hơn.
+```
+
+---
+
 ## Zsh Plugins
 
 Tất cả plugin được git clone vào `~/.zsh/plugins/`.
@@ -355,6 +439,13 @@ lx           → đỏ (lệnh không tồn tại)
 | `v` | `nvim` | Mở Neovim editor |
 | `ls` | `eza -l --icons` | Liệt kê file dạng bảng + icon |
 | `la` | `eza -la --icons` | Liệt kê tất cả file (cả ẩn) + icon |
+| `lt` | `eza --tree --icons -L 2` | Hiện dạng cây thư mục 2 cấp |
+| `lta` | `eza --tree --icons -L 2 -a` | Cây thư mục bao gồm file ẩn |
+| `..` | `cd ..` | Lên thư mục cha |
+| `...` | `cd ../..` | Lên 2 cấp |
+| `....` | `cd ../../..` | Lên 3 cấp |
+| `cp` | `cp -i` | Copy có hỏi trước khi ghi đè |
+| `mv` | `mv -i` | Move có hỏi trước khi ghi đè |
 
 ### Dotfiles
 
@@ -407,6 +498,34 @@ gi                                  # Chat interactive
 ---
 
 ## Custom Functions
+
+### `sudo` (Double Esc) — Thêm/bỏ sudo vào lệnh
+
+Nhấn `Esc` 2 lần để thêm `sudo` vào đầu lệnh đang gõ, hoặc lệnh trước đó:
+
+```bash
+apt install nginx        # gõ xong, quên sudo
+# Nhấn Esc Esc →
+sudo apt install nginx   # tự thêm sudo
+
+sudo rm -rf /tmp/test    # đã có sudo, muốn bỏ
+# Nhấn Esc Esc →
+rm -rf /tmp/test         # bỏ sudo
+```
+
+### `copypath` — Copy đường dẫn hiện tại vào clipboard
+
+```bash
+copypath       # -> "Copied: /Users/vinhcp/Workplace/MySelf/dotfiles"
+# Cmd+V để paste ở bất kỳ đâu
+```
+
+### `mkcd` — Tạo thư mục và cd vào luôn
+
+```bash
+mkcd my-new-project    # mkdir -p my-new-project && cd my-new-project
+mkcd a/b/c             # tạo cả cây thư mục rồi cd vào c
+```
 
 ### `ide` — Tạo layout IDE trong tmux
 
